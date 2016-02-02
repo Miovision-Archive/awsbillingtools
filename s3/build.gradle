@@ -67,7 +67,10 @@ bintray {
         name = projectVersion
     }
 
-    user = bintrayUser
-    key = bintraySecret
+    if(project.hasProperty('bintrayUser') && project.hasProperty('bintraySecret')) {
+        user = bintrayUser
+        key = bintraySecret
+    }
+
     publications = ['Bintray']
 }
