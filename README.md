@@ -1,5 +1,7 @@
 # AWS Billing Processor
 
+![Build Status](https://api.travis-ci.org/Miovision/awsbillingtools.svg?branch=develop)
+
 *Java libraries for processing AWS billing files.*
 
 This library supports the following features:
