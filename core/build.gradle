@@ -49,21 +49,24 @@ publishing {
             artifact sourceJar
             groupId projectGroupId
             artifactId moduleArtifactId
-            version projectVersion
+            version project.version
         }
     }
 }
 
 bintray {
     pkg {
+        userOrg = 'miovision'
         repo = 'maven'
         name = moduleArtifactId
         licenses = ['MIT']
         vcsUrl = projectVcsUrl
-    }
 
-    version {
-        name = projectVersion
+        version {
+            name = project.version
+            released = new Date()
+            vcsTag = "v${project.version}"
+        }
     }
 
     if(project.hasProperty('bintrayUser') && project.hasProperty('bintraySecret')) {
