@@ -25,6 +25,7 @@
 def modules = [
         [name: 'awsbillingtools-core', path: 'core'],
         [name: 'awsbillingtools-s3', path: 's3'],
+        [name: 'awsbillingtools-lambda', path: 'lambda'],
         [name: 'examples:core:example-core-parser', path: 'examples/core/parser'],
         [name: 'examples:s3:example-s3-scanner', path: 'examples/s3/scanner'],
         [name: 'examples:s3:example-s3-loader', path: 'examples/s3/loader'],

@@ -85,4 +85,10 @@ public class S3BillingRecordLoader<T> {
             throw e;
         }
     }
+
+    public boolean canLoad(S3BillingRecordFile s3BillingRecordFile) {
+        final Class<T> recordTypeClass = billingRecordParser.getRecordTypeClass();
+        final FileType parserFileType = FileType.forClass(recordTypeClass);
+        return s3BillingRecordFile.getType() == parserFileType;
+    }
 }
