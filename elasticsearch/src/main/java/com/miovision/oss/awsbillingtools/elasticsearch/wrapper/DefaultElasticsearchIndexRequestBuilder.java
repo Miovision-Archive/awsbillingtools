@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c)  2016 the original author or authors.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,38 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-def modules = [
-        [name: 'awsbillingtools-core', path: 'core'],
-        [name: 'awsbillingtools-s3', path: 's3'],
-        [name: 'awsbillingtools-lambda', path: 'lambda'],
-        [name: 'awsbillingtools-elasticsearch', path: 'elasticsearch'],
-        [name: 'awsbillingtools-examples', path: 'examples']
-]
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
 
-modules.each{ module ->
-    def fqName = module.name
-    def projName = module.name.split(':').last()
-    include "${fqName}"
-    def proj = findProject(":${fqName}")
-    proj.projectDir = new File(settingsDir, "${module.path}")
-    proj.name = projName
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import java.util.Map;
+
+/**
+ * The default implementation of ElasticsearchIndexRequestBuilder.
+ */
+public class DefaultElasticsearchIndexRequestBuilder implements ElasticsearchIndexRequestBuilder {
+    private IndexRequestBuilder indexRequestBuilder;
+
+    public DefaultElasticsearchIndexRequestBuilder(IndexRequestBuilder indexRequestBuilder) {
+        this.indexRequestBuilder = indexRequestBuilder;
+    }
+
+    @Override
+    public ElasticsearchIndexRequestBuilder setId(String id) {
+        indexRequestBuilder = indexRequestBuilder.setId(id);
+        return this;
+    }
+
+    @Override
+    public ElasticsearchIndexRequestBuilder setSource(Map<String, ?> fields) {
+        indexRequestBuilder = indexRequestBuilder.setSource(fields);
+        return this;
+    }
+
+    @Override
+    public ElasticsearchIndexRequest request() {
+        return new DefaultElasticsearchIndexRequest(indexRequestBuilder.request());
+    }
 }
