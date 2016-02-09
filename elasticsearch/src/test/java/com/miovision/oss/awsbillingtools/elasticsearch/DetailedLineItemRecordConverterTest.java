@@ -101,8 +101,8 @@ public class DetailedLineItemRecordConverterTest {
         assertEquals(true, fields.get("reserveInstance"));
         assertEquals("$0.05 per hour for a thing", fields.get("itemDescription"));
         assertEquals(1.02007083, (Double)fields.get("usageQuantity"), 0.0000000001);
-        assertEquals("2015-12-01T00:00:00.000-05:00", fields.get("usageStartDate").toString());
-        assertEquals("2015-12-01T01:00:00.000-05:00", fields.get("usageEndDate").toString());
+        assertEquals("2015-12-01T00:00:00.000Z", fields.get("usageStartDate").toString());
+        assertEquals("2015-12-01T01:00:00.000Z", fields.get("usageEndDate").toString());
         assertEquals(0.05, (Double)fields.get("rate"), 0.000001);
         assertEquals(0.05100354, (Double)fields.get("cost"), 0.0000000001);
         assertEquals("Resource ID", fields.get("resourceId"));

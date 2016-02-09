@@ -39,7 +39,8 @@ import java.util.Map;
  * A detailed line item billing record.
  */
 public class DetailedLineItem {
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
     private final CSVRecord csvRecord;
     private final List<String> tags;
     private transient LazyInitializer<DateTime> usageStartDate;
