@@ -25,16 +25,20 @@
 package com.miovision.oss.awsbillingtools.s3.scanner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.miovision.oss.awsbillingtools.FileType;
 import org.junit.Before;
 import org.junit.Test;
+import java.util.Optional;
 
 /**
  * Unit tests for the S3BillingRecordFile class.
  */
 public class S3BillingRecordFileTest {
+    public static final String TEST_BUCKET_NAME = "bucketName";
+    public static final String TEST_ACCOUNT_ID = "111111111111";
     private S3BillingRecordFile s3BillingRecordFile;
 
     @Before
@@ -110,5 +114,217 @@ public class S3BillingRecordFileTest {
 
         // Verify
         assertEquals("key", key);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsNull() {
+        // Execute
+        Optional<S3BillingRecordFile> result = S3BillingRecordFile.parseS3Key("bucketName", null);
+
+        // Verify
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsEmptyString() {
+        // Execute
+        Optional<S3BillingRecordFile> result = S3BillingRecordFile.parseS3Key("bucketName", "");
+
+        // Verify
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsNotABillingRecordFile() {
+        // Execute
+        Optional<S3BillingRecordFile> result = S3BillingRecordFile.parseS3Key("bucketName", "");
+
+        // Verify
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsACsvFile() {
+        // Setup
+        String s3Key = "111111111111-aws-billing-csv-2015-06.csv";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.CSV,
+                2015,
+                6,
+                false);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsALineItemsFile() {
+        // Setup
+        String s3Key = "111111111111-aws-billing-detailed-line-items-2015-06.csv.zip";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.LINE_ITEMS,
+                2015,
+                6,
+                true);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsADetailedLineItemsFile() {
+        // Setup
+        String s3Key = "111111111111-aws-billing-detailed-line-items-with-resources-and-tags-2015-06.csv.zip";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.DETAILED_LINE_ITEMS,
+                2015,
+                6,
+                true);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyIsACostAllocationFile() {
+        // Setup
+        String s3Key = "111111111111-aws-cost-allocation-2015-06.csv";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.COST_ALLOCATION,
+                2015,
+                6,
+                false);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyHasASimplePrefix() {
+        // Setup
+        String s3Key = "prefix/111111111111-aws-billing-csv-2015-06.csv";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.CSV,
+                2015,
+                6,
+                false);
+    }
+
+    @Test
+    public void testParseS3Key_S3KeyHasAComplexPrefix() {
+        // Setup
+        String s3Key = "/complex/prefix/111111111111-aws-billing-csv-2015-06.csv";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(TEST_BUCKET_NAME, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                s3Key,
+                FileType.CSV,
+                2015,
+                6,
+                false);
+    }
+
+    @Test
+    public void testParseS3Key_AllowsNullBucketName() {
+        // Setup
+        String s3Key = "/complex/prefix/111111111111-aws-billing-csv-2015-06.csv";
+
+        // Execute
+        Optional<S3BillingRecordFile> result =
+                S3BillingRecordFile.parseS3Key(null, s3Key);
+
+        // Verify
+        assertS3BillingRecordEquals(
+                result,
+                null,
+                s3Key,
+                FileType.CSV,
+                2015,
+                6,
+                false);
+    }
+
+    @Test
+    public void isS3BillingRecordFile_True() {
+        // Execute
+        boolean result = S3BillingRecordFile.isS3BillingRecordFile("111111111111-aws-billing-csv-2015-06.csv");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void isS3BillingRecordFile_False() {
+        // Execute
+        boolean result = S3BillingRecordFile.isS3BillingRecordFile("foo.txt");
+
+        // Verify
+        assertFalse(result);
+    }
+
+    private void assertS3BillingRecordEquals(Optional<S3BillingRecordFile> result,
+                                             String expectedS3Key,
+                                             FileType expectedFileType,
+                                             int expectedYear,
+                                             int expectedMonth,
+                                             boolean expectedIsZip) {
+        assertS3BillingRecordEquals(
+                result,
+                TEST_BUCKET_NAME,
+                expectedS3Key,
+                expectedFileType,
+                expectedYear,
+                expectedMonth,
+                expectedIsZip);
+    }
+
+    private void assertS3BillingRecordEquals(Optional<S3BillingRecordFile> result,
+                                             String expectedBucketName,
+                                             String expectedS3Key,
+                                             FileType expectedFileType,
+                                             int expectedYear,
+                                             int expectedMonth,
+                                             boolean expectedIsZip) {
+        assertTrue(result.isPresent());
+        assertEquals(expectedBucketName, result.get().getBucketName());
+        assertEquals(expectedS3Key, result.get().getKey());
+        assertEquals(TEST_ACCOUNT_ID, result.get().getAccountId());
+        assertEquals(expectedFileType, result.get().getType());
+        assertEquals(expectedYear, result.get().getYear());
+        assertEquals(expectedMonth, result.get().getMonth());
+        assertEquals(expectedIsZip, result.get().isZip());
     }
 }

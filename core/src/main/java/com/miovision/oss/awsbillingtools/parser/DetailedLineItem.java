@@ -25,6 +25,12 @@
 package com.miovision.oss.awsbillingtools.parser;
 
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +39,12 @@ import java.util.Map;
  * A detailed line item billing record.
  */
 public class DetailedLineItem {
+    public static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
     private final CSVRecord csvRecord;
     private final List<String> tags;
+    private transient LazyInitializer<DateTime> usageStartDate;
+    private transient LazyInitializer<DateTime> usageEndDate;
     private transient Map<String, String> extractedTags;
 
     public DetailedLineItem(CSVRecord csvRecord, List<String> tags) {
@@ -98,23 +108,41 @@ public class DetailedLineItem {
         return csvRecord.get(13);
     }
 
-    public String getUsageStartDate() {
-        return csvRecord.get(14);
+    public DateTime getUsageStartDate() {
+        if(usageStartDate == null) {
+            usageStartDate = new DateTimeLazyInitializer(csvRecord, 14);
+        }
+
+        try {
+            return usageStartDate.get();
+        }
+        catch (ConcurrentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String getUsageEndDate() {
-        return csvRecord.get(15);
+    public DateTime getUsageEndDate() {
+        if(usageEndDate == null) {
+            usageEndDate = new DateTimeLazyInitializer(csvRecord, 15);
+        }
+
+        try {
+            return usageEndDate.get();
+        }
+        catch (ConcurrentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public double getUsageQuantity() {
+    public Double getUsageQuantity() {
         return parseDouble(csvRecord.get(16));
     }
 
-    public double getRate() {
+    public Double getRate() {
         return parseDouble(csvRecord.get(17));
     }
 
-    public double getCost() {
+    public Double getCost() {
         return parseDouble(csvRecord.get(18));
     }
 
@@ -148,5 +176,21 @@ public class DetailedLineItem {
 
     private static Double parseDouble(String str) {
         return str == null || "".equals(str) ? null : Double.parseDouble(str);
+    }
+
+    private static class DateTimeLazyInitializer extends LazyInitializer<DateTime> {
+        private final CSVRecord csvRecord;
+        private final int fieldIndex;
+
+        private DateTimeLazyInitializer(CSVRecord csvRecord, int fieldIndex) {
+            this.csvRecord = csvRecord;
+            this.fieldIndex = fieldIndex;
+        }
+
+        @Override
+        protected DateTime initialize() throws ConcurrentException {
+            String fieldStr = csvRecord.get(fieldIndex);
+            return StringUtils.isEmpty(fieldStr) ? null : DATE_TIME_FORMATTER.parseDateTime(fieldStr);
+        }
     }
 }

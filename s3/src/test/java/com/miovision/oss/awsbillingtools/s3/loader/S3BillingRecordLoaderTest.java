@@ -25,6 +25,8 @@
 package com.miovision.oss.awsbillingtools.s3.loader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -139,6 +141,28 @@ public class S3BillingRecordLoaderTest {
             // Verify
             fail("Expected load() to throw a BillingFileNotFoundException.");
         }
+    }
+
+    @Test
+    public void testCanLoad_True() {
+        // Exercise
+        boolean result = billingRecordLoader.canLoad(givenAS3BillingRecordFile(false));
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testCanLoad_False() {
+        // Setup
+        S3BillingRecordFile s3BillingRecordFile =
+                new S3BillingRecordFile("bucketName", "key", "111111111111", FileType.CSV, 2015, 6, false);
+
+        // Exercise
+        boolean result = billingRecordLoader.canLoad(s3BillingRecordFile);
+
+        // Verify
+        assertFalse(result);
     }
 
     protected void givenFileScannerReturnsBillingRecordFiles(S3BillingRecordFile... s3BillingRecordFiles) {

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c)  2016 the original author or authors.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-def modules = [
-        [name: 'awsbillingtools-core', path: 'core'],
-        [name: 'awsbillingtools-s3', path: 's3'],
-        [name: 'awsbillingtools-lambda', path: 'lambda'],
-        [name: 'awsbillingtools-elasticsearch', path: 'elasticsearch'],
-        [name: 'awsbillingtools-examples', path: 'examples']
-]
+package com.miovision.oss.awsbillingtools.lambda;
 
-modules.each{ module ->
-    def fqName = module.name
-    def projName = module.name.split(':').last()
-    include "${fqName}"
-    def proj = findProject(":${fqName}")
-    proj.projectDir = new File(settingsDir, "${module.path}")
-    proj.name = projName
+/**
+ * An exception indicating that a stream could not be loaded.
+ */
+public class UnableToLoadStreamException extends Exception {
+    public UnableToLoadStreamException() {
+        super("Unable to load the stream of records");
+    }
 }

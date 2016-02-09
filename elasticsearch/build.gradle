@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c)  2016 the original author or authors.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
 plugins {
@@ -27,12 +28,12 @@ plugins {
 }
 
 dependencies {
-    compile 'commons-io:commons-io:2.4'
-    compile 'org.apache.commons:commons-csv:1.2'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'joda-time:joda-time:2.9.2'
+    compile project(':awsbillingtools-s3')
+    compile 'org.elasticsearch:elasticsearch:2.2.0'
+    compile 'org.projectlombok:lombok:1.16.6'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
 }
 
 apply plugin: "maven-publish"
@@ -42,7 +43,7 @@ task sourceJar(type: Jar) {
     classifier 'sources'
 }
 
-def moduleArtifactId = 'awsbillingtools-core'
+def moduleArtifactId = 'awsbillingtools-elasticsearch'
 
 publishing {
     publications {

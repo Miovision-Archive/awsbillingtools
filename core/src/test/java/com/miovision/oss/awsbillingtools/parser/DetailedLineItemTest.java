@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
@@ -235,10 +236,10 @@ public class DetailedLineItemTest {
         DetailedLineItem detailedLineItem = givenDetailedLineItemWithoutTags();
 
         // Execute
-        String usageStartDate = detailedLineItem.getUsageStartDate();
+        DateTime usageStartDate = detailedLineItem.getUsageStartDate();
 
         // Verify
-        assertEquals("2015-12-01 00:00:00", usageStartDate);
+        assertEquals(DetailedLineItem.DATE_TIME_FORMATTER.parseDateTime("2015-12-01 00:00:00"), usageStartDate);
     }
 
     @Test
@@ -247,10 +248,10 @@ public class DetailedLineItemTest {
         DetailedLineItem detailedLineItem = givenDetailedLineItemWithoutTags();
 
         // Execute
-        String usageEndDate = detailedLineItem.getUsageEndDate();
+        DateTime usageEndDate = detailedLineItem.getUsageEndDate();
 
         // Verify
-        assertEquals("2015-12-01 01:00:00", usageEndDate);
+        assertEquals(DetailedLineItem.DATE_TIME_FORMATTER.parseDateTime("2015-12-01 01:00:00"), usageEndDate);
     }
 
     @Test

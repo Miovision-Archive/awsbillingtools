@@ -23,15 +23,39 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.s3.scanner;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
 
-import com.miovision.oss.awsbillingtools.FileType;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.client.transport.TransportClient;
 
 /**
- * An exception that indicates that a billing record file could not be found.
+ * The default implementation of ElasticsearchConnection.
  */
-public class BillingRecordFileNotFoundException extends Exception {
-    public BillingRecordFileNotFoundException(FileType fileType, int year, int month) {
-        super(String.format("Unable to find billing record file of type %s for %d/%d", fileType, year, month));
+public class DefaultElasticsearchConnection implements ElasticsearchConnection {
+    private final TransportClient transportClient;
+
+    public DefaultElasticsearchConnection(TransportClient transportClient) {
+        this.transportClient = transportClient;
     }
+
+    @Override
+    public void close() throws Exception {
+        transportClient.close();
+    }
+
+    @Override
+    public void deleteIndex(String index) {
+        transportClient.admin().indices().delete(new DeleteIndexRequest(index));
+    }
+
+    @Override
+    public ElasticsearchIndexRequestBuilder prepareIndex(String index, String type) {
+        return new DefaultElasticsearchIndexRequestBuilder(transportClient.prepareIndex(index, type));
+    }
+
+    @Override
+    public ElasticsearchBulkRequest prepareBulk() {
+        return new DefaultElasticsearchBulkRequest(transportClient.prepareBulk());
+    }
+
 }

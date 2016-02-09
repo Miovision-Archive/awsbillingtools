@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c)  2016 the original author or authors.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
 package com.miovision.oss.awsbillingtools.s3.scanner;
@@ -28,15 +29,10 @@ import com.miovision.oss.awsbillingtools.FileType;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -44,13 +40,6 @@ import java.util.stream.StreamSupport;
  * The default implementation of S3BillingRecordFileScanner.
  */
 public class S3BillingRecordFileScanner {
-    private static final String FILE_REGEX = "(\\d+)-(.*)-(\\d{4})-(\\d{2})\\.(.*)";
-    private static final Pattern FILE_PATTERN = Pattern.compile(FILE_REGEX);
-    private static final Map<String, FileType> FILE_TYPE_STRING_TO_ENUM =
-            Arrays.asList(FileType
-                    .values())
-                    .stream()
-                    .collect(Collectors.toMap(type -> type.toFileString(), type1 -> type1));
     private static final String DELIMITER = "/";
     private final AmazonS3 amazonS3;
     private final String bucketName;
@@ -104,29 +93,7 @@ public class S3BillingRecordFileScanner {
         final String bucketName = s3ObjectSummary.getBucketName();
         final String key = s3ObjectSummary.getKey();
 
-        String matchKey = key;
-        int index = key.indexOf(DELIMITER);
-        if(index > -1) {
-            matchKey = matchKey.substring(index + 1);
-        }
-
-        Matcher filePatternMatcher = FILE_PATTERN.matcher(matchKey);
-        if(!filePatternMatcher.matches()) {
-            return null;
-        }
-
-        final String awsAccountId = filePatternMatcher.group(1);
-        final FileType fileType = parseFileType(filePatternMatcher.group(2));
-        final int year = Integer.parseInt(filePatternMatcher.group(3));
-        final int month = Integer.parseInt(filePatternMatcher.group(4));
-        final String suffix = filePatternMatcher.group(5);
-        final boolean zip = suffix.endsWith(".zip");
-
-        return new S3BillingRecordFile(bucketName, key, awsAccountId, fileType, year, month, zip);
-    }
-
-    private FileType parseFileType(String fileTypeStr) {
-        return FILE_TYPE_STRING_TO_ENUM.get(fileTypeStr);
+        return S3BillingRecordFile.parseS3Key(bucketName, key, DELIMITER).orElse(null);
     }
 
     private static class S3ObjectSpliterator implements Spliterator<S3ObjectSummary> {
