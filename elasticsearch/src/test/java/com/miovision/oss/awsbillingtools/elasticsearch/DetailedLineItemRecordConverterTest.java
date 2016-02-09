@@ -44,7 +44,7 @@ public class DetailedLineItemRecordConverterTest {
     private static final String RECORD_1 = "\"12345678\",\"111111111111\",\"222222222222\",\"LineItem\",\"12345678901234567890123456\",\"Product Name Here\",\"9191919\",\"723456723\",\"515253\",\"Usage Type Here\",\"Hourly\",\"us-east-1\",\"Y\",\"$0.05 per hour for a thing\",\"2015-12-01 00:00:00\",\"2015-12-01 01:00:00\",\"1.02007083\",\"0.0500000000\",\"0.05100354\",\"Resource ID\",\"bar\"\n";
     // CHECKSTYLE.ON: LineLengthCheck
     private static final DetailedLineItem detailedLineItem;
-    
+
     static {
         DetailedLineItemParser parser = new DetailedLineItemParser();
         try {
