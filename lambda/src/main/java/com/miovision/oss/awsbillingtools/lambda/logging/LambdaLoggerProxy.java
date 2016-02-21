@@ -23,31 +23,29 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
+package com.miovision.oss.awsbillingtools.lambda.logging;
 
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 
 /**
- * The default implementation of ElasticsearchBulkRequest.
+ * Created by cbeattie-mio on 20/02/16.
  */
-class DefaultElasticsearchBulkRequest implements ElasticsearchBulkRequest {
-    private final BulkRequestBuilder bulkRequestBuilder;
+public class LambdaLoggerProxy implements LambdaLogger {
+    private LambdaLogger impl;
 
-    DefaultElasticsearchBulkRequest(BulkRequestBuilder bulkRequestBuilder) {
-        this.bulkRequestBuilder = bulkRequestBuilder;
+    public LambdaLogger getImpl() {
+        return impl;
     }
 
-    public BulkRequestBuilder getBulkRequestBuilder() {
-        return bulkRequestBuilder;
-    }
-
-    @Override
-    public void add(ElasticsearchIndexRequest indexRequest) {
-        bulkRequestBuilder.add(((DefaultElasticsearchIndexRequest) indexRequest).getIndexRequest());
+    public void setImpl(LambdaLogger impl) {
+        this.impl = impl;
     }
 
     @Override
-    public void execute() {
-        bulkRequestBuilder.get();
+    public void log(String string) {
+        if (impl == null) {
+            throw new RuntimeException("LambdaLogger implementation has not been provided");
+        }
+        impl.log(string);
     }
 }

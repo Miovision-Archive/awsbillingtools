@@ -29,7 +29,7 @@ import com.miovision.oss.awsbillingtools.elasticsearch.DefaultElasticsearchIndex
 import com.miovision.oss.awsbillingtools.elasticsearch.DetailedLineItemRecordConverter;
 import com.miovision.oss.awsbillingtools.elasticsearch.ElasticsearchBillingRecordConverter;
 import com.miovision.oss.awsbillingtools.elasticsearch.ElasticsearchIndexer;
-import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.DefaultElasticsearchConnectionFactory;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.esclient.DefaultElasticsearchConnectionFactory;
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnectionFactory;
 import com.miovision.oss.awsbillingtools.parser.DetailedLineItem;
 import com.miovision.oss.awsbillingtools.parser.DetailedLineItemParser;

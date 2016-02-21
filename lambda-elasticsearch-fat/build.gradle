@@ -23,35 +23,16 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
+apply plugin: 'java'
 
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import java.util.Map;
+dependencies {
+    compile project(':awsbillingtools-lambda-elasticsearch')
+}
 
-/**
- * The default implementation of ElasticsearchIndexRequestBuilder.
- */
-public class DefaultElasticsearchIndexRequestBuilder implements ElasticsearchIndexRequestBuilder {
-    private IndexRequestBuilder indexRequestBuilder;
-
-    public DefaultElasticsearchIndexRequestBuilder(IndexRequestBuilder indexRequestBuilder) {
-        this.indexRequestBuilder = indexRequestBuilder;
-    }
-
-    @Override
-    public ElasticsearchIndexRequestBuilder setId(String id) {
-        indexRequestBuilder = indexRequestBuilder.setId(id);
-        return this;
-    }
-
-    @Override
-    public ElasticsearchIndexRequestBuilder setSource(Map<String, ?> fields) {
-        indexRequestBuilder = indexRequestBuilder.setSource(fields);
-        return this;
-    }
-
-    @Override
-    public ElasticsearchIndexRequest request() {
-        return new DefaultElasticsearchIndexRequest(indexRequestBuilder.request());
+jar {
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }

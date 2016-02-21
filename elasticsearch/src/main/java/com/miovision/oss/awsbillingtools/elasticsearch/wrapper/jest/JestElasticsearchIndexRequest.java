@@ -23,17 +23,22 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.jest;
+
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import io.searchbox.core.Index;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * A Jest implementation of ElasticsearchIndexRequest.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+public class JestElasticsearchIndexRequest implements ElasticsearchIndexRequest {
+    private final Index index;
+
+    public JestElasticsearchIndexRequest(Index index) {
+        this.index = index;
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    public Index getIndex() {
+        return index;
     }
 }

@@ -23,17 +23,24 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.lambda.logging;
+
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * An implementation of ILoggerFactory for Lambda logging.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+public class LambdaLoggerFactory implements ILoggerFactory {
+    private final LambdaLogger lambdaLogger;
+
+    public LambdaLoggerFactory(LambdaLogger lambdaLogger) {
+        this.lambdaLogger = lambdaLogger;
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    @Override
+    public Logger getLogger(String name) {
+        return new LambdaLoggerAdapter(name, lambdaLogger);
     }
 }

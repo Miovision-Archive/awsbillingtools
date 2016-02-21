@@ -26,6 +26,8 @@ def modules = [
         [name: 'awsbillingtools-core', path: 'core'],
         [name: 'awsbillingtools-s3', path: 's3'],
         [name: 'awsbillingtools-lambda', path: 'lambda'],
+        [name: 'awsbillingtools-lambda-elasticsearch', path: 'lambda-elasticsearch'],
+        [name: 'awsbillingtools-lambda-elasticsearch-fat', path: 'lambda-elasticsearch-fat'],
         [name: 'awsbillingtools-elasticsearch', path: 'elasticsearch'],
         [name: 'awsbillingtools-examples', path: 'examples']
 ]

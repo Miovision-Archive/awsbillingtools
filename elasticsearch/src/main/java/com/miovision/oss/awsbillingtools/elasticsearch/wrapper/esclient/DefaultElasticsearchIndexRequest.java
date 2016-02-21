@@ -23,17 +23,22 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.esclient;
+
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * The default implementation of ElasticsearchIndexRequest.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+class DefaultElasticsearchIndexRequest implements ElasticsearchIndexRequest {
+    private final IndexRequest indexRequest;
+
+    DefaultElasticsearchIndexRequest(IndexRequest indexRequest) {
+        this.indexRequest = indexRequest;
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    public IndexRequest getIndexRequest() {
+        return indexRequest;
     }
 }

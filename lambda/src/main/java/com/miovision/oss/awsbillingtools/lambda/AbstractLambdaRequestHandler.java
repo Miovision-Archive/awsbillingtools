@@ -25,6 +25,7 @@
 
 package com.miovision.oss.awsbillingtools.lambda;
 
+import org.slf4j.impl.StaticLoggerBinder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import java.util.stream.Stream;
@@ -41,10 +42,12 @@ public abstract class AbstractLambdaRequestHandler<InputT, RecordTypeT, OutputT>
 
     @Override
     public OutputT handleRequest(InputT input, Context context) {
+        StaticLoggerBinder.getSingleton().setLambdaLogger(context.getLogger());
+
         try(Stream<RecordTypeT> stream = loadStream(input)) {
             return handleStream(stream, context);
         }
-        catch (UnableToLoadStreamException e) {
+        catch (Exception e) {
             LambdaUtils.logThrowable(context, e);
             throw new RuntimeException(e);
         }
@@ -69,6 +72,6 @@ public abstract class AbstractLambdaRequestHandler<InputT, RecordTypeT, OutputT>
      *
      * @return The output object.
      */
-    protected abstract OutputT handleStream(Stream<RecordTypeT> stream, Context context);
+    protected abstract OutputT handleStream(Stream<RecordTypeT> stream, Context context) throws Exception;
 
 }

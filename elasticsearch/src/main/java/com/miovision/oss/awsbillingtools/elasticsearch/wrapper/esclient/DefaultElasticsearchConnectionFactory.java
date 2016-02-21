@@ -23,8 +23,10 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.esclient;
 
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnection;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnectionFactory;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;

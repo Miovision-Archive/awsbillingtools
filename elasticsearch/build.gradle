@@ -29,7 +29,8 @@ plugins {
 
 dependencies {
     compile project(':awsbillingtools-s3')
-    compile 'org.elasticsearch:elasticsearch:2.2.0'
+    compile 'org.elasticsearch:elasticsearch:2.2.0' // deprecated
+    compile 'io.searchbox:jest:2.0.0'
     compile 'org.projectlombok:lombok:1.16.6'
 
     testCompile 'junit:junit:4.12'

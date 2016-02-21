@@ -23,17 +23,37 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.jest;
+
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchBulkRequest;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import java.io.IOException;
+import io.searchbox.client.JestClient;
+import io.searchbox.core.Bulk;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * A Jest implementation of ElasticsearchBulkRequest.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+public class JestElasticsearchBulkRequest implements ElasticsearchBulkRequest {
+    private final Bulk.Builder builder = new Bulk.Builder();
+    private final JestClient jestClient;
+
+    public JestElasticsearchBulkRequest(JestClient jestClient) {
+        this.jestClient = jestClient;
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    @Override
+    public void add(ElasticsearchIndexRequest indexRequest) {
+        builder.addAction(((JestElasticsearchIndexRequest)indexRequest).getIndex());
+    }
+
+    @Override
+    public void execute() {
+        try {
+            jestClient.execute(builder.build());
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

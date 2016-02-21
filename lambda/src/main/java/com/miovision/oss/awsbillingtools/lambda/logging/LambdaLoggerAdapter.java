@@ -23,17 +23,35 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.lambda.logging;
+
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * An implementation of an slf4j Logger based on the 'Simple' logger.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+public class LambdaLoggerAdapter extends SimpleLogger {
+    private final LambdaLogger lambdaLogger;
+
+    LambdaLoggerAdapter(String name, LambdaLogger lambdaLogger) {
+        super(name);
+        this.lambdaLogger = lambdaLogger;
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    @Override
+    void write(StringBuilder buf, Throwable t) {
+        lambdaLogger.log(buf.toString());
+        if(t != null) {
+            StringWriter stringWriter = new StringWriter(buf.length());
+            try(PrintWriter writer = new PrintWriter(stringWriter)) {
+                t.printStackTrace(writer);
+                lambdaLogger.log(stringWriter.toString());
+            }
+        }
     }
+
 }

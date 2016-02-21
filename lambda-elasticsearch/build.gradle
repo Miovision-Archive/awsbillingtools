@@ -23,17 +23,58 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+plugins {
+    id "com.jfrog.bintray" version "1.4"
+}
 
-/**
- * An exception indicating that a stream could not be loaded.
- */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+dependencies {
+    compile project(':awsbillingtools-elasticsearch')
+    compile project(':awsbillingtools-lambda')
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+}
+
+apply plugin: "maven-publish"
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier 'sources'
+}
+
+def moduleArtifactId = 'awsbillingtools-lambda-elasticsearch'
+
+publishing {
+    publications {
+        Bintray(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            groupId projectGroupId
+            artifactId moduleArtifactId
+            version project.version
+        }
+    }
+}
+
+bintray {
+    pkg {
+        userOrg = 'miovision'
+        repo = 'maven'
+        name = moduleArtifactId
+        licenses = ['MIT']
+        vcsUrl = projectVcsUrl
+
+        version {
+            name = project.version
+            released = new Date()
+            vcsTag = "v${project.version}"
+        }
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    if(project.hasProperty('bintrayUser') && project.hasProperty('bintraySecret')) {
+        user = bintrayUser
+        key = bintraySecret
     }
+
+    publications = ['Bintray']
 }

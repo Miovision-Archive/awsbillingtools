@@ -23,21 +23,33 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.esclient;
 
-import org.elasticsearch.action.index.IndexRequest;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchBulkRequest;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 
 /**
- * The default implementation of ElasticsearchIndexRequest.
+ * The default implementation of ElasticsearchBulkRequest.
  */
-class DefaultElasticsearchIndexRequest implements ElasticsearchIndexRequest {
-    private final IndexRequest indexRequest;
+class DefaultElasticsearchBulkRequest implements ElasticsearchBulkRequest {
+    private final BulkRequestBuilder bulkRequestBuilder;
 
-    DefaultElasticsearchIndexRequest(IndexRequest indexRequest) {
-        this.indexRequest = indexRequest;
+    DefaultElasticsearchBulkRequest(BulkRequestBuilder bulkRequestBuilder) {
+        this.bulkRequestBuilder = bulkRequestBuilder;
     }
 
-    public IndexRequest getIndexRequest() {
-        return indexRequest;
+    public BulkRequestBuilder getBulkRequestBuilder() {
+        return bulkRequestBuilder;
+    }
+
+    @Override
+    public void add(ElasticsearchIndexRequest indexRequest) {
+        bulkRequestBuilder.add(((DefaultElasticsearchIndexRequest) indexRequest).getIndexRequest());
+    }
+
+    @Override
+    public void execute() {
+        bulkRequestBuilder.get();
     }
 }

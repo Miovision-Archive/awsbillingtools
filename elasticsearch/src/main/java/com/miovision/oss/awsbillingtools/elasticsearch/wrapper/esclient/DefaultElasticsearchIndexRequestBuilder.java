@@ -23,39 +23,37 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.elasticsearch.wrapper;
+package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.esclient;
 
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequestBuilder;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import java.util.Map;
 
 /**
- * The default implementation of ElasticsearchConnection.
+ * The default implementation of ElasticsearchIndexRequestBuilder.
  */
-public class DefaultElasticsearchConnection implements ElasticsearchConnection {
-    private final TransportClient transportClient;
+public class DefaultElasticsearchIndexRequestBuilder implements ElasticsearchIndexRequestBuilder {
+    private IndexRequestBuilder indexRequestBuilder;
 
-    public DefaultElasticsearchConnection(TransportClient transportClient) {
-        this.transportClient = transportClient;
+    public DefaultElasticsearchIndexRequestBuilder(IndexRequestBuilder indexRequestBuilder) {
+        this.indexRequestBuilder = indexRequestBuilder;
     }
 
     @Override
-    public void close() throws Exception {
-        transportClient.close();
+    public ElasticsearchIndexRequestBuilder setId(String id) {
+        indexRequestBuilder = indexRequestBuilder.setId(id);
+        return this;
     }
 
     @Override
-    public void deleteIndex(String index) {
-        transportClient.admin().indices().delete(new DeleteIndexRequest(index));
+    public ElasticsearchIndexRequestBuilder setSource(Map<String, ?> fields) {
+        indexRequestBuilder = indexRequestBuilder.setSource(fields);
+        return this;
     }
 
     @Override
-    public ElasticsearchIndexRequestBuilder prepareIndex(String index, String type) {
-        return new DefaultElasticsearchIndexRequestBuilder(transportClient.prepareIndex(index, type));
+    public ElasticsearchIndexRequest request() {
+        return new DefaultElasticsearchIndexRequest(indexRequestBuilder.request());
     }
-
-    @Override
-    public ElasticsearchBulkRequest prepareBulk() {
-        return new DefaultElasticsearchBulkRequest(transportClient.prepareBulk());
-    }
-
 }
