@@ -30,13 +30,13 @@ import com.miovision.oss.awsbillingtools.elasticsearch.ElasticsearchBillingRecor
 import com.miovision.oss.awsbillingtools.elasticsearch.ElasticsearchIndexer;
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnectionFactory;
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.jest.JestElasticsearchConnectionFactory;
+import com.miovision.oss.awsbillingtools.lambda.AbstractRequestHandler;
 import com.miovision.oss.awsbillingtools.lambda.LambdaUtils;
 import com.miovision.oss.awsbillingtools.parser.BillingRecordParser;
 import com.miovision.oss.awsbillingtools.s3.loader.S3BillingRecordLoader;
 import com.miovision.oss.awsbillingtools.s3.scanner.S3BillingRecordFileScanner;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import java.util.stream.Stream;
@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * An abstract AWS Lambda request handler for indexing billing records into Elasticsearch.
  */
 public abstract class AbstractElasticsearchIndexerLambdaRequestHandler<RecordTypeT>
-        implements RequestHandler<AbstractElasticsearchIndexerLambdaRequestHandler.Request, Void> {
+        extends AbstractRequestHandler<AbstractElasticsearchIndexerLambdaRequestHandler.Request, Void> {
     private final AmazonS3 amazonS3;
     private final BillingRecordParser<RecordTypeT> billingRecordParser;
 
@@ -62,21 +62,27 @@ public abstract class AbstractElasticsearchIndexerLambdaRequestHandler<RecordTyp
     }
 
     @Override
-    public Void handleRequest(Request input, Context context) {
+    protected Void handleRequestInternal(Request input, Context context) {
         final S3BillingRecordFileScanner fileScanner = createS3BillingRecordFileScanner(input);
         final S3BillingRecordLoader<RecordTypeT> recordLoader = createS3BillingRecordLoader(fileScanner);
         final ElasticsearchBillingRecordConverter<RecordTypeT> recordConverter = createRecordConverter();
         try(Stream<RecordTypeT> stream = recordLoader.load(input.getYear(), input.getMonth())) {
-            final ElasticsearchConnectionFactory connectionFactory = createElasticsearchConnectionFactory(input);
-            final ElasticsearchIndexer<RecordTypeT> elasticsearchIndexer =
-                    createElasticsearchIndexer(input, recordConverter, connectionFactory);
-            elasticsearchIndexer.index(stream);
+            handleStream(input, recordConverter, stream);
         }
         catch (Exception e) {
             LambdaUtils.logThrowable(context, e);
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    protected void handleStream(Request input,
+                                ElasticsearchBillingRecordConverter<RecordTypeT> recordConverter,
+                                Stream<RecordTypeT> stream) throws Exception {
+        final ElasticsearchConnectionFactory connectionFactory = createElasticsearchConnectionFactory(input);
+        final ElasticsearchIndexer<RecordTypeT> elasticsearchIndexer =
+                createElasticsearchIndexer(input, recordConverter, connectionFactory);
+        elasticsearchIndexer.index(stream);
     }
 
     protected ElasticsearchIndexer<RecordTypeT> createElasticsearchIndexer(

@@ -146,7 +146,7 @@ public class DetailedLineItemElasticsearchIndexerLambdaRequestHandler
     private static class DebugLambdaLogger implements LambdaLogger {
         @Override
         public void log(String string) {
-            System.out.println(string);
+            System.out.print(string);
         }
     }
 }

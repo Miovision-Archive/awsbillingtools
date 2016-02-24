@@ -23,24 +23,30 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda.logging;
+package com.miovision.oss.awsbillingtools.lambda;
 
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
+import com.amazonaws.services.lambda.runtime.Context;
 
 /**
- * An implementation of ILoggerFactory for Lambda logging.
+ * A singleton holder that holds a reference to the Lambda context.
  */
-public class LambdaLoggerFactory implements ILoggerFactory {
-    private final LambdaLogger lambdaLogger;
+public class LambdaContextHolder {
+    private static final LambdaContextHolder SINGLETON = new LambdaContextHolder();
+    private Context context;
 
-    public LambdaLoggerFactory(LambdaLogger lambdaLogger) {
-        this.lambdaLogger = lambdaLogger;
+    public static LambdaContextHolder getInstance() {
+        return SINGLETON;
     }
 
-    @Override
-    public Logger getLogger(String name) {
-        return new LambdaLoggerAdapter(name, lambdaLogger);
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public void clearContext() {
+        this.context = null;
     }
 }

@@ -23,29 +23,28 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda.logging;
+package com.miovision.oss.awsbillingtools.lambda;
 
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 /**
- * Created by cbeattie-mio on 20/02/16.
+ * An abstract implementation of RequestHandler.
+ *
+ * @param <InputT> The input type.
+ * @param <OutputT> The output type.
  */
-public class LambdaLoggerProxy implements LambdaLogger {
-    private LambdaLogger impl;
-
-    public LambdaLogger getImpl() {
-        return impl;
-    }
-
-    public void setImpl(LambdaLogger impl) {
-        this.impl = impl;
-    }
-
+public abstract class AbstractRequestHandler<InputT, OutputT> implements RequestHandler<InputT, OutputT> {
     @Override
-    public void log(String string) {
-        if (impl == null) {
-            throw new RuntimeException("LambdaLogger implementation has not been provided");
+    public OutputT handleRequest(InputT input, Context context) {
+        try {
+            LambdaContextHolder.getInstance().setContext(context);
+            return handleRequestInternal(input, context);
         }
-        impl.log(string);
+        finally {
+            LambdaContextHolder.getInstance().clearContext();
+        }
     }
+
+    protected abstract OutputT handleRequestInternal(InputT input, Context context);
 }

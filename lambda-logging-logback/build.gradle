@@ -23,35 +23,7 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda.logging;
-
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-/**
- * An implementation of an slf4j Logger based on the 'Simple' logger.
- */
-public class LambdaLoggerAdapter extends SimpleLogger {
-    private final LambdaLogger lambdaLogger;
-
-    LambdaLoggerAdapter(String name, LambdaLogger lambdaLogger) {
-        super(name);
-        this.lambdaLogger = lambdaLogger;
-    }
-
-    @Override
-    void write(StringBuilder buf, Throwable t) {
-        lambdaLogger.log(buf.toString());
-        if(t != null) {
-            StringWriter stringWriter = new StringWriter(buf.length());
-            try(PrintWriter writer = new PrintWriter(stringWriter)) {
-                t.printStackTrace(writer);
-                lambdaLogger.log(stringWriter.toString());
-            }
-        }
-    }
-
+dependencies {
+    compile project(':awsbillingtools-lambda')
+    compile 'ch.qos.logback:logback-classic:1.1.5'
 }

@@ -29,6 +29,8 @@ import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchBulk
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnection;
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchConnectionFactory;
 import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -39,6 +41,7 @@ import java.util.stream.Stream;
  * @param <RecordTypeT> The billing record type.
  */
 public class DefaultElasticsearchIndexer<RecordTypeT> implements ElasticsearchIndexer<RecordTypeT> {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultElasticsearchIndexer.class);
     private final ElasticsearchConnectionFactory connectionFactory;
     private final ElasticsearchBillingRecordConverter<RecordTypeT> recordConverter;
     private final String index;
@@ -65,19 +68,32 @@ public class DefaultElasticsearchIndexer<RecordTypeT> implements ElasticsearchIn
 
     @Override
     public void index(Stream<RecordTypeT> stream) throws Exception {
+        LOG.debug("Indexing record stream into index {} in batches of {}", index, batchSize);
         try(ElasticsearchConnection connection = connectionFactory.create()) {
             index(connection, stream);
+        }
+        catch (Exception e) {
+            LOG.error("Indexing failed", e);
+            throw e;
+        }
+        finally {
+            LOG.debug("Indexing complete");
         }
     }
 
     protected void index(ElasticsearchConnection connection, Stream<RecordTypeT> stream) {
         final Iterator<RecordTypeT> streamIterator = stream.iterator();
+        int batchIndex = 0;
         while(streamIterator.hasNext()) {
-            indexBatch(connection, streamIterator);
+            indexBatch(connection, streamIterator, batchIndex++);
         }
     }
 
-    protected void indexBatch(ElasticsearchConnection connection, Iterator<RecordTypeT> streamIterator) {
+    protected void indexBatch(ElasticsearchConnection connection,
+                              Iterator<RecordTypeT> streamIterator,
+                              int batchIndex) {
+        LOG.debug("Preparing batch #{}", batchIndex);
+
         ElasticsearchBulkRequest bulkRequestBuilder = prepareBatch(connection);
 
         for(int i = 0; i < batchSize && streamIterator.hasNext(); ++i) {
@@ -87,6 +103,8 @@ public class DefaultElasticsearchIndexer<RecordTypeT> implements ElasticsearchIn
         }
 
         executeBatch(bulkRequestBuilder);
+
+        LOG.debug("Batch #{} complete", batchIndex);
     }
 
     protected ElasticsearchIndexRequest createIndexRequestForRecord(
@@ -101,6 +119,7 @@ public class DefaultElasticsearchIndexer<RecordTypeT> implements ElasticsearchIn
     }
 
     protected void executeBatch(ElasticsearchBulkRequest bulkRequestBuilder) {
+        LOG.debug("Indexing batch");
         bulkRequestBuilder.execute();
     }
 

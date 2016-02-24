@@ -25,40 +25,21 @@
 
 package com.miovision.oss.awsbillingtools.elasticsearch.wrapper.jest;
 
-import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchBulkRequest;
-import com.miovision.oss.awsbillingtools.elasticsearch.wrapper.ElasticsearchIndexRequest;
-import java.io.IOException;
-import io.searchbox.client.JestClient;
 import io.searchbox.client.JestResult;
-import io.searchbox.core.Bulk;
 
 /**
- * A Jest implementation of ElasticsearchBulkRequest.
+ * An exception encapsulating a failed JestResult.
  */
-public class JestElasticsearchBulkRequest implements ElasticsearchBulkRequest {
-    private final Bulk.Builder builder = new Bulk.Builder();
-    private final JestClient jestClient;
+class JestResultException extends RuntimeException {
+    private final JestResult result;
 
-    public JestElasticsearchBulkRequest(JestClient jestClient) {
-        this.jestClient = jestClient;
+    public JestResultException(JestResult result) {
+        super(result.getErrorMessage());
+
+        this.result = result;
     }
 
-    @Override
-    public void add(ElasticsearchIndexRequest indexRequest) {
-        builder.addAction(((JestElasticsearchIndexRequest)indexRequest).getIndex());
+    public JestResult getResult() {
+        return result;
     }
-
-    @Override
-    public void execute() {
-        try {
-            JestResult result = jestClient.execute(builder.build());
-            if(!result.isSucceeded()) {
-                throw new JestResultException(result);
-            }
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }

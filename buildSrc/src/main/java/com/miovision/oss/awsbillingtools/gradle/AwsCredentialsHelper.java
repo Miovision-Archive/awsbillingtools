@@ -23,17 +23,26 @@
  *
  */
 
-package com.miovision.oss.awsbillingtools.lambda;
+package com.miovision.oss.awsbillingtools.gradle;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import org.gradle.api.credentials.AwsCredentials;
+import org.gradle.internal.credentials.DefaultAwsCredentials;
 
 /**
- * An exception indicating that a stream could not be loaded.
+ * A helper class for getting AWS credentials.
  */
-public class UnableToLoadStreamException extends Exception {
-    public UnableToLoadStreamException() {
-        super("Unable to load the stream of records");
+public class AwsCredentialsHelper {
+    private AwsCredentialsHelper() {
+
     }
 
-    public UnableToLoadStreamException(Exception e) {
-        super("Unable to load the stream of records", e);
+    public static AwsCredentials getCredentials() {
+        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+        DefaultAwsCredentials gradleAwsCredentials = new DefaultAwsCredentials();
+        gradleAwsCredentials.setAccessKey(credentials.getAWSAccessKeyId());
+        gradleAwsCredentials.setSecretKey(credentials.getAWSSecretKey());
+        return gradleAwsCredentials;
     }
 }
